@@ -458,26 +458,41 @@
     <label class="fld">Tell us a little about your audience</label>
     <input type="text" placeholder="e.g. millennial women, Gen Z first-time voters, suburban parents…" />
 
-    <label class="fld">Upload past content <span style="font-weight:400;color:var(--muted);">(optional — helps us match your voice & tone)</span></label>
+    <label class="fld">Upload past content <span style="font-weight:400;color:var(--muted);">(optional — helps us understand your voice & tone)</span></label>
     <div class="upload" id="dropzone" role="button" tabindex="0" aria-label="Add past content — drop files here or press Enter to browse">
       <div style="font-size:26px;">⬆️</div>
       <p style="margin:8px 0 2px;"><strong>Drop slides, video files, or scripts here</strong> — or <span class="browselink">browse</span></p>
-      <p style="margin:0;font-size:13px;">Our AI analyzes your style so generated copy sounds like <em>you</em>, not a press release.</p>
+      <p style="margin:0;font-size:13px;">This goes to The Recount editorial team (<a href="mailto:creators@therecount.com" style="color:inherit;">creators@therecount.com</a>), who will get back to you.</p>
       <p style="margin:10px 0 0;font-size:12px;color:var(--muted);">Accepted: MP4, MOV, PNG, JPG, PDF, PPT/Keynote · up to 200MB per file. Got a long video? Paste a YouTube or Drive link instead.</p>
       <input type="file" id="fileInput" multiple hidden accept=".mp4,.mov,.png,.jpg,.jpeg,.pdf,.ppt,.pptx,.key,.txt,.doc,.docx" />
     </div>
     <ul class="filelist" id="fileList"></ul>
+
+    <!-- Sends the creator's details to The Recount so the team can follow up
+         case by case. Same destination as every other form here: a Google Form
+         row plus an email. See sendToRecount(). -->
+    <div class="out full" style="margin-top:18px;" id="aboutYouSend">
+      <h3><span class="lft"><span class="ic">✉️</span> Send this to The Recount</span></h3>
+      <p style="margin:0 0 12px;font-size:14px;">Tell us where to reach you and we'll follow up case by case.</p>
+      <input type="text" id="ayName" placeholder="Your name" />
+      <input type="email" id="ayEmail" placeholder="Email address" style="margin-top:8px;" />
+      <input type="text" id="ayHandle" placeholder="Channel or handle — @yourname" style="margin-top:8px;" />
+      <input type="text" id="ayLinks" placeholder="Links to past content (YouTube, TikTok, Drive…)" style="margin-top:8px;" />
+      <button class="btn primary sm" id="ayBtn" style="margin-top:10px;">Send to The Recount →</button>
+      <div class="src" style="margin-top:8px;">Goes to The Recount editorial team
+        (creators@therecount.com), who will get back to you.</div>
+    </div>
   </div>
 
   <!-- ============ STEP 3: REVIEW ============ -->
   <div class="step" id="step3">
     <p class="qlabel">Ready to generate your kit?</p>
-    <p class="qhint">Here's what you'll get — catered to your focus and audience.</p>
+    <p class="qhint">Here's what you'll get.</p>
     <div class="out full">
       <ul>
         <li>Poll opening & closing times, early voting & absentee info (adjustable to your time zone)</li>
-        <li>5 story ideas — each generates its own script + carousel copy</li>
-        <li>5–10 sourced fast facts and the races that'll decide balance of power in Congress</li>
+        <li>5 story ideas</li>
+        <li>Fast facts and the races that'll decide balance of power in Congress</li>
         <li>Editable debate dates & deadlines, potential guests with outreach suggestions</li>
         <li>Platform-specific shareable infographics</li>
       </ul>
@@ -666,10 +681,10 @@
 
     <div class="cta">
       <h3>🎉 One more thing — you're invited</h3>
-      <p>Join The Recount's <b>Creator Content House</b> on election night in NYC. NYC-based creators can also grab a seat on our <b>Party Bus to the Polls</b> around Election Day.</p>
+      <p>Join The Recount's <b>Creator Content House</b> on election night in NYC and our <b>Virtual Creator Summit</b> in October.</p>
       <div class="row">
-        <button class="btn white">Register for the Content House →</button>
-        <button class="btn white" style="background:rgba(27,27,27,.14);color:#1b1b1b;border:1px solid #1b1b1b;">Reserve a Party Bus seat 🚌</button>
+        <a class="btn white" href="mailto:creators@therecount.com?subject=Creator%20Content%20House%20%E2%80%94%20registration" style="text-decoration:none;display:inline-block;">Register for the Content House →</a>
+        <a class="btn white" href="mailto:creators@therecount.com?subject=Virtual%20Creator%20Summit%20%E2%80%94%20RSVP" style="background:rgba(27,27,27,.14);color:#1b1b1b;border:1px solid #1b1b1b;text-decoration:none;display:inline-block;">RSVP for our Virtual Creator Summit →</a>
       </div>
     </div>
 
@@ -678,7 +693,7 @@
         <button class="btn ghost" onclick="backToForm()">← Back</button>
         <button class="btn ghost" onclick="restart()">Start over</button>
       </div>
-      <button class="btn primary" onclick="alert('Shareable kit link copied (mock).')">Copy shareable kit link</button>
+      <button class="btn primary" onclick="copyKitLink(this)">Copy shareable kit link</button>
     </div>
   </div>
 
@@ -708,7 +723,6 @@
     "Wars & conflicts abroad",
     "Drugs & addiction",
     "Courts & the justice system",
-    "Religion",
     "Political division & unity",
     "Social media & misinformation"
   ];
@@ -1124,9 +1138,12 @@
   document.getElementById('reqSend').addEventListener('click',()=>{
     const cat=document.getElementById('reqCat').value||'[unspecified expert]';
     const who=document.getElementById('reqName').value||'[creator]';
-    const subject=encodeURIComponent('Expert request from creator: '+who);
-    const body=encodeURIComponent('Creator: '+who+'\nExpert needed: '+cat+'\nRace/context: Ohio U.S. Senate (open seat)\n\nPlease source and connect us. Thanks!');
-    window.location.href='mailto:creators@therecount.com?subject='+subject+'&body='+body;
+    sendToRecount('Expert request from creator: '+who,{
+      kind:'Expert / guest request',
+      name:who, handle:who,
+      race:currentRaceLabel(),
+      details:'Expert needed: '+cat+'. Please source and connect us.'
+    });
   });
 
   /* Custom infographics — each downloadable in all aspect ratios (built after export helpers load) */
@@ -2530,18 +2547,130 @@
 
   renderInfographics();
 
+
+  /* ==================== SENDING THINGS TO THE RECOUNT ====================
+     Every form in this guide routes through sendToRecount(). Two destinations,
+     deliberately:
+
+       1. A Google Form, POSTed to silently. Each submission becomes a row in the
+          linked Google Sheet - a living record the team can sort, filter and
+          assign. Turn on "Get email notifications for new responses" on that Form
+          and creators@therecount.com is emailed too, WITHOUT depending on the
+          creator having a mail client configured.
+       2. mailto:, as the fallback. Used when the Form is not configured yet, or
+          when the POST fails.
+
+     The POST goes through a hidden iframe rather than fetch(). Google Forms does
+     not send CORS headers, so fetch() cannot read the response and a no-cors fetch
+     gives no delivery signal either; a form target=iframe submits cross-origin
+     cleanly and is the standard approach.
+
+     TO CONNECT IT: create the Google Form, then fill in RECOUNT_FORM below.
+     Until action is set, everything falls back to mailto and nothing breaks. */
+  const RECOUNT_FORM={
+    /* https://docs.google.com/forms/d/e/<FORM_ID>/formResponse  <- note formResponse, not viewform */
+    action:'',
+    /* Map each field to its entry.NNNNNNN id from the Form's prefill link. */
+    fields:{ kind:'', name:'', email:'', handle:'', audience:'', platforms:'',
+             topics:'', race:'', details:'', links:'' }
+  };
+  function recountFormReady(){
+    return !!(RECOUNT_FORM.action && RECOUNT_FORM.fields && RECOUNT_FORM.fields.kind);
+  }
+  function postToRecountForm(payload){
+    if(!recountFormReady()) return false;
+    try{
+      let fr=document.getElementById('recountFormSink');
+      if(!fr){
+        fr=document.createElement('iframe'); fr.id='recountFormSink'; fr.name='recountFormSink';
+        fr.style.display='none'; document.body.appendChild(fr);
+      }
+      const f=document.createElement('form');
+      f.action=RECOUNT_FORM.action; f.method='POST'; f.target='recountFormSink'; f.style.display='none';
+      Object.keys(payload).forEach(k=>{
+        const id=RECOUNT_FORM.fields[k];
+        if(!id || payload[k]==null || payload[k]==='') return;
+        const i=document.createElement('input'); i.type='hidden'; i.name=id; i.value=String(payload[k]);
+        f.appendChild(i);
+      });
+      document.body.appendChild(f); f.submit();
+      setTimeout(()=>{ try{ document.body.removeChild(f); }catch(e){} },1500);
+      return true;
+    }catch(e){ return false; }
+  }
+  function mailtoFor(subject,payload){
+    const order=['kind','name','email','handle','audience','platforms','topics','race','links','details'];
+    const label={kind:'Request type',name:'Name',email:'Email',handle:'Channel / handle',
+      audience:'Audience',platforms:'Platforms',topics:'Topics',race:'Race',links:'Links to past content',
+      details:'Details'};
+    const body=['Hi Recount team,','']
+      .concat(order.filter(k=>payload[k]).map(k=>'• '+label[k]+': '+payload[k]))
+      .concat(['','Thanks!']).join('\n');
+    return 'mailto:creators@therecount.com?subject='+encodeURIComponent(subject)
+           +'&body='+encodeURIComponent(body);
+  }
+  /* Returns true if it reached the Sheet, false if it fell back to the mail client. */
+  function sendToRecount(subject,payload){
+    if(postToRecountForm(payload)){
+      toast('Sent to The Recount — we’ll be in touch.');
+      return true;
+    }
+    window.location.href=mailtoFor(subject,payload);
+    return false;
+  }
+  function currentRaceLabel(){
+    try{
+      const r=resolvePick&&resolvePick().race;
+      if(r) return r.id+' — '+r.state+(r.district?' district '+r.district:'')+' ('+r.chamber+')';
+    }catch(e){}
+    return '[no race selected]';
+  }
+
   (function(){
     const b=document.getElementById('reqAssetSend'); if(!b) return;
     b.addEventListener('click',()=>{
       const what=document.getElementById('reqAssetWhat').value||'[asset]';
       const spec=document.getElementById('reqAssetSpec').value||'[platform / aspect ratio]';
       const who=document.getElementById('reqAssetName').value||'[creator]';
-      const subject=encodeURIComponent('Custom social asset request — '+who);
-      const body=encodeURIComponent("Hi Recount team,\n\nI'd like a custom social asset for my 2026 coverage kit.\n\n• Asset: "+what+"\n• Platform(s) & aspect ratio: "+spec+"\n• Race/context: Ohio U.S. Senate (open seat)\n\nMy channel(s): "+who+"\n\nThanks!");
-      window.location.href='mailto:creators@therecount.com?subject='+subject+'&body='+body;
+      sendToRecount('Custom social asset request \u2014 '+who,{
+        kind:'Custom social asset request',
+        name:who, handle:who,
+        race:currentRaceLabel(),
+        platforms:spec,
+        details:'Asset requested: '+what
+      });
     });
   })();
 
+
+  (function(){
+    const b=document.getElementById('ayBtn'); if(!b) return;
+    b.addEventListener('click',()=>{
+      const val=id=>{const e=document.getElementById(id); return e?(e.value||'').trim():'';};
+      const name=val('ayName'), email=val('ayEmail');
+      if(!name || !email){
+        toast('Add your name and email so we can reach you.');
+        (document.getElementById(name?'ayEmail':'ayName')||{focus(){}}).focus();
+        return;
+      }
+      const chips=sel=>Array.from(document.querySelectorAll(sel+' .chip.on'))
+                           .map(c=>c.textContent.trim()).join(', ');
+      const aud=document.querySelector('#step2 input[type="text"]');
+      const files=Array.from(document.querySelectorAll('#fileList li'))
+                       .map(li=>li.textContent.trim()).join('; ');
+      const ok=sendToRecount('Creator intro \u2014 '+name,{
+        kind:'Creator intro (step 2)',
+        name:name, email:email, handle:val('ayHandle'),
+        audience:aud?(aud.value||'').trim():'',
+        platforms:chips('#platformChips'),
+        topics:chips('#topicChips'),
+        race:currentRaceLabel(),
+        links:val('ayLinks'),
+        details:files?('Files staged in browser (not uploaded): '+files):''
+      });
+      if(ok) b.textContent='Sent ✓';
+    });
+  })();
 
   /* ---- Past-content uploads ----
      The dropzone used to be a decorative div with no input and no handlers, so
@@ -2587,9 +2716,12 @@
       const ask=document.getElementById('storyAsk').value.trim();
       const who=document.getElementById('storyName').value.trim()||'[creator]';
       if(!ask){ toast('Tell us what you\u2019d like to cover first.'); document.getElementById('storyAsk').focus(); return; }
-      const subject=encodeURIComponent('Story idea / partnership \u2014 '+who);
-      const body=encodeURIComponent('Creator: '+who+'\nRace/context: Ohio U.S. Senate (open seat)\n\n'+ask+'\n');
-      window.location.href='mailto:creators@therecount.com?subject='+subject+'&body='+body;
+      sendToRecount('Story idea / partnership \u2014 '+who,{
+        kind:'Story idea / partnership',
+        name:who, handle:who,
+        race:currentRaceLabel(),
+        details:ask
+      });
     });
   })();
 
@@ -2803,9 +2935,13 @@
         const who=(document.getElementById('otherWho').value||'').trim()||'[creator]';
         const where=(document.getElementById('otherWhere').value||'').trim()||'[not specified]';
         if(!what){ toast('Tell us what you cover first.'); document.getElementById('otherIssue').focus(); return; }
-        window.location.href='mailto:creators@therecount.com?subject='
-          +encodeURIComponent('Issue coverage request \u2014 '+who)
-          +'&body='+encodeURIComponent('Creator: '+who+'\nBeat: '+what+'\nState/district: '+where+'\n');
+        sendToRecount('Issue coverage request \u2014 '+who,{
+          kind:'Issue coverage request',
+          name:who, handle:who,
+          topics:what,
+          race:where,
+          details:'Beat / issue: '+what+'  |  State or district: '+where
+        });
       });
       document.getElementById('raceTitle').textContent='Your beat';
       document.getElementById('raceSub').textContent='Tell us what you cover and we will do the legwork.';
@@ -2890,11 +3026,6 @@
   function raceFacts(r,lead){
     const f=[], cs=r.cands.slice();
     const push=(text,hi,icon)=>f.push({text:text,hi:hi||'',icon:icon||null});
-    if(r.rating){
-      const n=RACES.filter(x=>x.rating===r.rating).length;
-      push('Rated '+r.rating+' \u2014 one of the '+n+' races in this guide with that rating.',
-           r.rating,'chart');
-    }
     const inc=cs.filter(c=>c.incumbent==='Y');
     if(!inc.length) push('No incumbent on the ballot \u2014 this is an open seat.','open seat','capitol');
     else push(inc[0].candidate+' holds the seat and is defending it.',inc[0].candidate,'capitol');
@@ -2921,15 +3052,36 @@
       push(funded[0].candidate+' has raised '+only+
            '; no filing is recorded here for the other candidate.',only,'moneyBag');
     }
+    /* Issue facts are derived from the issue tags, which are themselves derived
+       from issue_positions at build time. Splitting "both are on the record" from
+       "only one is" says something the old single line could not: where the race
+       is actually joined, and where one candidate simply has not engaged. */
     if(r.issues && r.issues.length){
       let iss=r.issues.slice();
       if(lead && iss.indexOf(lead)>-1) iss=[lead].concat(iss.filter(x=>x!==lead));
-      const shown=iss.slice(0,3).map(x=>x.toLowerCase());
-      push('Both candidates are on the record on '+shown.join(', ')+'.', shown[0],'megaphone');
+      const named=cs.filter(c=>c.issues&&c.issues.length);
+      const andList=a=>a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+      if(named.length>1){
+        const shared=iss.filter(i=>named.every(c=>c.issues.indexOf(i)>-1));
+        if(shared.length){
+          const sh=shared.slice(0,3).map(x=>x.toLowerCase());
+          push('Both candidates are on the record on '+andList(sh)+'.', sh[0],'megaphone');
+        }
+        const solo=[];
+        iss.forEach(i=>{
+          const who=named.filter(c=>c.issues.indexOf(i)>-1);
+          if(who.length===1) solo.push({issue:i,c:who[0]});
+        });
+        solo.slice(0,2).forEach(x=>{
+          const w=x.issue.toLowerCase();
+          push('Only '+x.c.candidate+' addresses '+w+' in their published positions.',w,'megaphone');
+        });
+      } else if(named.length===1){
+        const sh=named[0].issues.slice(0,3).map(x=>x.toLowerCase());
+        push(named[0].candidate+' is on the record on '+andList(sh)+
+             '; no positions are recorded here for the other candidate.',sh[0],'megaphone');
+      }
     }
-    const sameChamber=RACES.filter(x=>x.chamber===r.chamber).length;
-    push('One of '+sameChamber+' '+chamberWord(r)+' races this guide covers.',
-         sameChamber+' '+chamberWord(r)+' races','usmap');
     return f.slice(0,7);
   }
   function renderFacts(r){
@@ -3312,7 +3464,6 @@
     "Wars & conflicts abroad":"When we send people to fight",
     "Drugs & addiction":"Addiction, and what actually helps",
     "Courts & the justice system":"What the courts decide for us",
-    "Religion":"Faith and public life",
     "Political division & unity":"Whether anyone can work together",
     "Social media & misinformation":"What we're being told online"
   };
@@ -3378,7 +3529,7 @@
 
   /* ---------- WIZARD ---------- */
   const state={step:1,focus:null,pick:{state:null,chamber:null,query:null,issue:null,race:null,topics:[]}};
-  const titles={1:["Let's build your midterm coverage kit.","Answer a few questions and we'll generate story angles, scripts, fast facts, and shareable graphics catered to your audience."],2:["Tell us about you & your audience.","This is how we cater the tone, format, and angles to fit your content."],3:["Almost there.","Review and generate your custom 2026 coverage kit."]};
+  const titles={1:["Let's build your midterm coverage kit.","Answer a few questions and we'll generate story angles, scripts, fast facts, and shareable graphics catered to your audience."],2:["Tell us about you & your audience.","The Recount team will point you to reporting, races, and people to talk to."],3:["Almost there.","Review and generate your custom 2026 coverage kit."]};
 
   document.querySelectorAll('#step1 .choice').forEach(c=>c.addEventListener('click',()=>{
     document.querySelectorAll('#step1 .choice').forEach(x=>x.classList.remove('selected')); c.classList.add('selected');
@@ -3517,8 +3668,8 @@
         ? 'Races where candidates are on the record on '+res.issue.toLowerCase()+'.'
         : 'More than one race matched \u2014 pick one.'; }
     else { renderNoCoverage(res.state,res.issue);
-      document.getElementById('pageTitle').textContent='Nothing loaded for that yet.';
-      document.getElementById('pageSub').textContent='Sample layout \u2014 live data & sourcing plug in later.'; }
+      document.getElementById('pageTitle').textContent='';
+      document.getElementById('pageSub').textContent=''; }
     window.scrollTo({top:0,behavior:'smooth'});
   }
   function backToForm(){
@@ -3529,6 +3680,77 @@
     document.getElementById('progress').style.display='flex';
     render();
   }
+
+  /* ==================== SHAREABLE KIT LINK ====================
+     "Copy shareable kit link" used to fire alert('...(mock)') and point nowhere.
+     There is no server to store a kit on, so the pick is encoded into the URL and
+     rebuilt on load. A recipient opening the link lands on the same kit, or on the
+     same chooser if the pick resolved to several races.
+
+     Only the pick travels - not the creator's name, email or audience. Those are
+     personal, they are already sent to the team through sendToRecount(), and a
+     link is a thing people paste into group chats. Topics do travel: they are the
+     issue chips, they seed the editable Ballot Priorities graphic, and they are not
+     identifying. */
+  function kitURL(){
+    const p=state.pick, q=[];
+    const add=(k,v)=>{ if(v) q.push(encodeURIComponent(k)+'='+encodeURIComponent(v)); };
+    if(p.race) add('race',p.race.id);
+    else { add('state',p.state); add('chamber',p.chamber); add('issue',p.issue); add('q',p.query); }
+    if(p.topics && p.topics.length) add('topics',p.topics.join('|'));
+    const base=location.href.split('#')[0].split('?')[0];
+    return base+(q.length?'?'+q.join('&'):'');
+  }
+  function applyKitURL(){
+    let params;
+    try{ params=new URLSearchParams(location.search); }catch(e){ return false; }
+    if(!params||!params.toString()) return false;
+    const g=k=>{ const v=params.get(k); return v?v.trim():null; };
+    const topics=g('topics');
+    if(topics) state.pick.topics=topics.split('|').filter(Boolean);
+    const raceId=g('race');
+    if(raceId){
+      const r=RACES.filter(x=>x.id===raceId)[0];
+      /* An unknown id means a stale link - a race that was renamed or dropped.
+         Falling through to the wizard is better than a blank kit. */
+      if(!r){ toast('That link points to a race this guide no longer covers.'); return false; }
+      state.pick.race=r;
+      state.focus='race';
+      showResults();
+      return true;
+    }
+    const st=g('state'), iss=g('issue'), qq=g('q'), ch=g('chamber');
+    if(!st && !iss && !qq) return false;
+    state.pick.state=st; state.pick.issue=iss; state.pick.query=qq; state.pick.chamber=ch;
+    state.focus=iss?'issue':'state';
+    showResults();
+    return true;
+  }
+  function copyKitLink(btn){
+    const url=kitURL();
+    const done=()=>{ toast('Kit link copied — anyone who opens it lands on this kit.');
+      if(btn){ const t=btn.textContent; btn.textContent='Copied ✓';
+        setTimeout(()=>{ btn.textContent=t; },1800); } };
+    /* navigator.clipboard needs a secure context, so it is absent on file:// and on
+       plain http. The textarea path covers those; if both fail the URL is shown so
+       it can still be copied by hand rather than lost. */
+    if(navigator.clipboard && window.isSecureContext){
+      navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url,done));
+    } else fallbackCopy(url,done);
+  }
+  function fallbackCopy(url,done){
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=url; ta.setAttribute('readonly','');
+      ta.style.position='fixed'; ta.style.top='-1000px';
+      document.body.appendChild(ta); ta.select();
+      const ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok){ done(); return; }
+    }catch(e){}
+    window.prompt('Copy this link to share your kit:',url);
+  }
+
   function restart(){
     state.step=1; state.focus=null;
     /* BUG FIX: pick was never cleared, so resolvePick() kept returning the first
@@ -3552,9 +3774,12 @@
     document.getElementById('progress').style.display='flex';
     document.querySelectorAll('#step1 .choice').forEach(x=>x.classList.remove('selected'));
     document.querySelectorAll('.subq').forEach(x=>x.classList.remove('show'));
+    /* Drop any ?race=... so a refresh after Start over does not reopen the old kit. */
+    try{ if(location.search) history.replaceState(null,'',location.pathname); }catch(e){}
     render();
   }
   render();
+  applyKitURL();
 </script>
 </body>
 </html>
