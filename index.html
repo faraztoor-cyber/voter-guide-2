@@ -981,19 +981,22 @@
   /* Infographics: title, subtitle, ratio class, platform label, pixel dims, alt bg */
   const INFOGRAPHICS = [
     { t:"My 2026 Ballot Priorities: Ohio", lines:[
-      "Abortion access, kept out of politicians' hands",
-      "Lower costs — without cutting workers' pay",
-      "The right to organize and join a union",
-      "Fair district maps, not gerrymandered ones",
-      "Voting that's easier to do, not harder" ], cta:"These are mine. What are yours?",
+      "Where abortion law goes from here",
+      "What everything actually costs now",
+      "Whether there's decent work around here",
+      "How our elections are run",
+      "What health care costs, and who gets it" ], cta:"These are mine. What are yours?",
       hi:["Abortion access","workers' pay","join a union","Fair district maps","easier to do"],
       icons:["check","moneyBag","megaphone","usmap","ballot"] },
     { t:"Who I'd Vote For If I Lived in Ohio", lines:[
-      "My pick for U.S. Senate: Sherrod Brown (D)",
-      "Spent his career fighting for Ohio workers",
-      "Will protect abortion access — his opponent won't",
-      "Takes on corporate money instead of taking it",
-      "This open seat could decide who runs the Senate" ], cta:"Not in Ohio? Send this to someone who is.",
+      /* Neutral by decision, 2026-08-28: the guide never asserts anything about a
+         candidate's opponent. Only reachable before a race is picked; once one is,
+         this graphic is generated from that candidate's own recorded positions. */
+      "My pick: pick a race to fill this in",
+      "Their position, in your words",
+      "Another reason they have your vote",
+      "What you want your audience to know",
+      "Why this race matters where you live" ], cta:"Not in Ohio? Send this to someone who is.",
       hi:["Ohio workers","abortion access","corporate money","decide"],
       icons:["megaphone","check","moneyBag","capitol"] },
     { t:"Ohio U.S. Senate, Explained", lines:[
@@ -1612,6 +1615,7 @@
     [/\bappointed?\b|appointee|ballotpedia|candidate profile/i,'official'],
     [/\bdebate(s|d)?\b|town hall|forum\b/i,'lectern'],
     [/gerrymander|district (map|line)|redistrict|fair maps/i,'usmap'],
+    [/\brated?\b|race rating|tossup|toss-up|competitive|lean [DR]\b|likely [DR]\b|forecaster/i,'chart'],
     [/\bresults?\b|\breturns\b|\bcount(ed|ing|s)?\b|\breporting\b/i,'chart'],
     [/absentee|mail[- ]?in|request by|apply online|vote by mail/i,'mailBallot'],
     [/polls? (open|close)|poll hours|\d{1,2}:\d{2}\s*(am|pm)/i,'clock'],
@@ -2491,6 +2495,9 @@
     return wrap;
   }
 
+  /* Kept as a live object so the export menu, built once at load, sees each new race. */
+  const FACTS_META = {lines:[],hi:[],icons:[]};
+
   // Inject an Export control into every shareable kit section
   document.querySelectorAll('#results .out').forEach(card=>{
     if(card.hasAttribute('data-noexport')) return;
@@ -2500,10 +2507,13 @@
     /* The Congress card is a data visualisation, not a list of lines, so it
        gets its own renderer rather than going through collectLines(). */
     const isCongress = /Decide Congress/i.test(title||'');
+    const isFacts = /^Fast Facts/i.test(title||'');
     h3.appendChild(buildExportMenu(
       isCongress ? 'The Races That Will Decide Congress'
                  : (()=>card.getAttribute('data-asset')||title),
-      ()=>collectLines(card), null, null,
+      isFacts ? (()=>FACTS_META.lines.length?FACTS_META.lines:collectLines(card))
+              : (()=>collectLines(card)),
+      null, isFacts?FACTS_META:null,
       isCongress ? ((W,H)=>renderCongressAsset(W,H,selectedState())) : null));
   });
 
@@ -2820,45 +2830,80 @@
   function usd(n){ return '$'+Math.round(n).toLocaleString('en-US'); }
   function chamberWord(r){ return r.chamber==='Senate' ? 'Senate' : 'House'; }
 
+  /* Each fact carries its own highlight and icon. The renderer will otherwise
+     guess: pickHighlight() underlines the longest adjacent pair of non-stopwords,
+     which produced things like "guide covers", and pickIcon() falls through to an
+     arbitrary rotation. Since this code builds the sentence, it knows which span
+     actually matters - the figure, the rating, the name. */
   function raceFacts(r,lead){
     const f=[], cs=r.cands.slice();
-    if(r.rating) f.push('Rated <b>'+r.rating+'</b> \u2014 one of the '+RACES.filter(x=>x.rating===r.rating).length+
-                        ' races in this guide with that rating.');
+    const push=(text,hi,icon)=>f.push({text:text,hi:hi||'',icon:icon||null});
+    if(r.rating){
+      const n=RACES.filter(x=>x.rating===r.rating).length;
+      push('Rated '+r.rating+' \u2014 one of the '+n+' races in this guide with that rating.',
+           r.rating,'chart');
+    }
     const inc=cs.filter(c=>c.incumbent==='Y');
-    if(!inc.length) f.push('No incumbent on the ballot \u2014 this is an open seat.');
-    else f.push('<b>'+inc[0].candidate+'</b> holds the seat and is defending it.');
+    if(!inc.length) push('No incumbent on the ballot \u2014 this is an open seat.','open seat','capitol');
+    else push(inc[0].candidate+' holds the seat and is defending it.',inc[0].candidate,'capitol');
     const funded=cs.filter(c=>money(c.funding_raised)>0)
                    .sort((a,b)=>money(b.funding_raised)-money(a.funding_raised));
     if(funded.length>=2){
-      f.push('<b>'+funded[0].candidate+'</b> has raised '+usd(money(funded[0].funding_raised))+
-             ' to <b>'+funded[1].candidate+'</b>\u2019s '+usd(money(funded[1].funding_raised))+
-             (funded[0].funding_as_of?' (as of '+funded[0].funding_as_of+').':'.'));
+      const top=usd(money(funded[0].funding_raised));
+      push(funded[0].candidate+' has raised '+top+' to '+funded[1].candidate+'\u2019s '+
+           usd(money(funded[1].funding_raised))+
+           (funded[0].funding_as_of?' (as of '+funded[0].funding_as_of+').':'.'), top,'moneyBag');
       const coh=cs.filter(c=>money(c.funding_cash_on_hand)>0)
                   .sort((a,b)=>money(b.funding_cash_on_hand)-money(a.funding_cash_on_hand));
       if(coh.length>=2 && money(coh[1].funding_cash_on_hand)>0){
         const x=money(coh[0].funding_cash_on_hand)/money(coh[1].funding_cash_on_hand);
-        if(x>=1.5) f.push('<b>'+coh[0].candidate+'</b> goes into the closing stretch with '+
-          usd(money(coh[0].funding_cash_on_hand))+' in the bank \u2014 about '+x.toFixed(1)+
-          '\u00d7 what '+coh[1].candidate+' has left.');
+        if(x>=1.5){
+          const amt=usd(money(coh[0].funding_cash_on_hand));
+          push(coh[0].candidate+' goes into the closing stretch with '+amt+
+               ' in the bank \u2014 about '+x.toFixed(1)+'\u00d7 what '+coh[1].candidate+' has left.',
+               amt,'moneyBag');
+        }
       }
     } else if(funded.length===1){
-      f.push('<b>'+funded[0].candidate+'</b> has raised '+usd(money(funded[0].funding_raised))+
-             '; no filing is recorded here for the other candidate.');
+      const only=usd(money(funded[0].funding_raised));
+      push(funded[0].candidate+' has raised '+only+
+           '; no filing is recorded here for the other candidate.',only,'moneyBag');
     }
     if(r.issues && r.issues.length){
-      /* If the user arrived via an issue, name that one first - they came for it. */
       let iss=r.issues.slice();
       if(lead && iss.indexOf(lead)>-1) iss=[lead].concat(iss.filter(x=>x!==lead));
-      f.push('Both candidates are on the record on <b>'+iss.slice(0,3).join(', ').toLowerCase()+'</b>.');
+      const shown=iss.slice(0,3).map(x=>x.toLowerCase());
+      push('Both candidates are on the record on '+shown.join(', ')+'.', shown[0],'megaphone');
     }
     const sameChamber=RACES.filter(x=>x.chamber===r.chamber).length;
-    f.push('One of '+sameChamber+' '+chamberWord(r)+' races this guide covers.');
+    push('One of '+sameChamber+' '+chamberWord(r)+' races this guide covers.',
+         sameChamber+' '+chamberWord(r)+' races','usmap');
     return f.slice(0,7);
   }
   function renderFacts(r){
     const ul=document.getElementById('factList'); if(!ul) return;
     ul.innerHTML='';
-    (r?raceFacts(r,state.pick.issue):FACTS).forEach(t=>{ const li=document.createElement('li'); li.innerHTML=t; ul.appendChild(li); });
+    if(r){
+      const facts=raceFacts(r,state.pick.issue);
+      FACTS_META.lines=facts.map(x=>x.text);
+      FACTS_META.hi=facts.map(x=>x.hi);
+      FACTS_META.icons=facts.map(x=>x.icon);
+      facts.forEach(x=>{
+        const li=document.createElement('li');
+        li.textContent=x.text;                       /* bold the highlighted span on screen too */
+        if(x.hi && x.text.indexOf(x.hi)>-1){
+          const i=x.text.indexOf(x.hi);
+          li.textContent='';
+          li.appendChild(document.createTextNode(x.text.slice(0,i)));
+          const b=document.createElement('b'); b.textContent=x.hi; li.appendChild(b);
+          li.appendChild(document.createTextNode(x.text.slice(i+x.hi.length)));
+        }
+        ul.appendChild(li);
+      });
+    } else {
+      FACTS_META.lines=[]; FACTS_META.hi=[]; FACTS_META.icons=[];
+      FACTS.forEach(t=>{ const li=document.createElement('li'); li.innerHTML=t; ul.appendChild(li); });
+    }
     const note=document.querySelector('[data-asset^="Fast Facts"] .src');
     if(note) note.textContent = r ? 'Derived from this guide\u2019s candidate data \u2014 funding figures carry their filing date.'
                                   : '5\u201310 facts, pulled only from vetted sources.';
@@ -2946,9 +2991,22 @@
     r.cands.forEach(c=>expl.push(c.candidate+' ('+c.party+')'+(c.incumbent==='Y'?', the incumbent':'')));
     if(r.rating) expl.push('Forecasters call it '+r.rating.toLowerCase());
     if(r.issues&&r.issues.length) expl.push('Live issues: '+r.issues.slice(0,3).join(', ').toLowerCase());
+    const scoreHi=[], scoreIc=[];
+    scoreHi.push(r.rating||''); scoreIc.push('chart');
+    r.cands.forEach(c=>{ scoreHi.push(c.candidate); scoreIc.push('official'); });
+    if(score.length>1+r.cands.length){ scoreHi.push(''); scoreIc.push('moneyBag'); }
+    while(scoreHi.length<score.length){ scoreHi.push(''); scoreIc.push('capitol'); }
+    const explHi=[r.state], explIc=['usmap'];
+    r.cands.forEach(c=>{ explHi.push(c.candidate); explIc.push('official'); });
+    while(explHi.length<expl.length){
+      const i=explHi.length;
+      if(/^Forecasters/.test(expl[i])){ explHi.push(r.rating?r.rating.toLowerCase():''); explIc.push('chart'); }
+      else if(/^Live issues/.test(expl[i])){ explHi.push((r.issues&&r.issues[0]||'').toLowerCase()); explIc.push('megaphone'); }
+      else { explHi.push(''); explIc.push('capitol'); }
+    }
     return [
-      {t:'Race Scorecard: '+raceLabel(r), lines:score, derived:true},
-      {t:raceLabel(r)+', Explained', lines:expl, derived:true}
+      {t:'Race Scorecard: '+raceLabel(r), lines:score, hi:scoreHi, icons:scoreIc, derived:true},
+      {t:raceLabel(r)+', Explained', lines:expl, hi:explHi, icons:explIc, derived:true}
     ];
   }
   function renderInfographicsFor(r){
@@ -2959,8 +3017,11 @@
     const specs = editableSpec(r);
     // the priorities graphic is titled for the chosen state and is editable
     const editKeys = Object.keys(specs);
+    const prioKey = editKeys.filter(k=>/^My 2026/.test(k))[0];
+    const voteKey = editKeys.filter(k=>/^Who I/.test(k))[0];
     const shown = items.map(ig=>{
-      if(r && /^My 2026 Ballot Priorities/.test(ig.t)) return Object.assign({},ig,{t:editKeys[0],editable:true});
+      if(r && prioKey && /^My 2026 Ballot Priorities/.test(ig.t)) return Object.assign({},ig,{t:prioKey,editable:true});
+      if(r && voteKey && /^Who I'?.?d Vote For/.test(ig.t)) return Object.assign({},ig,{t:voteKey,editable:true});
       return ig;
     });
     shown.forEach(ig=>{
@@ -3004,16 +3065,27 @@
   const EDIT_STATE = {};
   function editableSpec(r){
     const st = r ? r.state : 'your state';
-    const key='My 2026 Ballot Priorities: '+st;
     const spec={};
-    spec[key]={
-        heading:'Your priorities \u2014 edit any line',
-        cta:'These are mine. What are yours?',
-        lines:(state.pick.topics&&state.pick.topics.length)
-                ? state.pick.topics.slice(0,5)
-                : ['','','','',''],
+    spec['My 2026 Ballot Priorities: '+st]={
+      heading:'Your priorities \u2014 edit any line',
+      cta:'These are mine. What are yours?',
+      lines:(state.pick.topics&&state.pick.topics.length)
+              ? state.pick.topics.slice(0,5).map(phraseIssue)
+              : ['','','','',''],
       placeholder:'An issue you want your audience to care about'
     };
+    if(r){
+      const pick=(EDIT_STATE.__pick && r.cands.filter(c=>c.candidate===EDIT_STATE.__pick)[0]) || r.cands[0];
+      spec['Who I\u2019d Vote For: '+raceLabel(r)]={
+        heading:'Your pick and your reasons \u2014 edit any line',
+        cta:'Not in '+r.state+'? Send this to someone who is.',
+        lines:['My pick for '+(r.chamber==='Senate'?'U.S. Senate':'Congress')+': '+
+               pick.candidate+' ('+pick.party+')'].concat(candidateBullets(pick)).slice(0,5),
+        placeholder:'Why they have your vote \u2014 in your words',
+        candidates:r.cands.map(c=>c.candidate),
+        race:r
+      };
+    }
     return spec;
   }
   function linesFor(key,spec){
@@ -3024,6 +3096,20 @@
     const st=linesFor(key,spec);
     const panel=document.createElement('div'); panel.className='editpanel';
     const h=document.createElement('div'); h.className='eh'; h.textContent=spec.heading; panel.appendChild(h);
+    if(spec.candidates && spec.candidates.length>1){
+      const pickRow=document.createElement('div'); pickRow.className='chips'; pickRow.style.marginBottom='11px';
+      spec.candidates.forEach(nm=>{
+        const chip=document.createElement('div'); chip.className='chip'+(nm===(EDIT_STATE.__pick||spec.candidates[0])?' selected':'');
+        chip.textContent=nm;
+        chip.addEventListener('click',()=>{
+          EDIT_STATE.__pick=nm;
+          delete EDIT_STATE[key];                    /* reprime the lines for the new pick */
+          renderInfographicsFor(spec.race);
+        });
+        pickRow.appendChild(chip);
+      });
+      panel.appendChild(pickRow);
+    }
     function paint(){
       panel.querySelectorAll('.editline').forEach(n=>n.remove());
       const foot=panel.querySelector('.editfoot');
@@ -3145,6 +3231,62 @@
         '<div class="dotcap">'+cap+'</div>';
       host.appendChild(el);
     });
+  }
+
+
+  /* ---------- STEP 3: issue phrasings ----------
+     One line per issue in the dropdown, used to prefill the creator's priorities
+     graphic. NEUTRAL BY DESIGN: each names the concern without taking a side, so a
+     creator of any politics can post it or edit it. The Ohio mock's lines took
+     positions ("Fair district maps, not gerrymandered ones") and are deliberately
+     not the model here. */
+  const ISSUE_PHRASE = {
+    "Cost of living & inflation":"What everything actually costs now",
+    "The economy & jobs":"Whether there's decent work around here",
+    "Housing":"Whether anyone can afford to live here",
+    "Immigration":"How immigration actually gets handled",
+    "Healthcare":"What health care costs, and who gets it",
+    "Abortion":"Where abortion law goes from here",
+    "Crime":"Whether people feel safe where they live",
+    "Education":"What our schools are actually able to do",
+    "Democracy & elections":"How our elections are run",
+    "Taxes & the federal deficit":"Who pays what, and what we get for it",
+    "Environment & climate change":"The air, water and land we live with",
+    "Race relations":"How we treat each other",
+    "Foreign policy & national security":"America's role in the world",
+    "Wars & conflicts abroad":"When we send people to fight",
+    "Drugs & addiction":"Addiction, and what actually helps",
+    "Courts & the justice system":"What the courts decide for us",
+    "Religion":"Faith and public life",
+    "Political division & unity":"Whether anyone can work together",
+    "Social media & misinformation":"What we're being told online"
+  };
+  function phraseIssue(name){ return ISSUE_PHRASE[name] || name; }
+
+  /* ---------- STEP 4: the endorsement graphic ----------
+     The creator supplies the endorsement; the guide supplies only that candidate's
+     own recorded positions. Nothing is asserted about the opponent - the mock's
+     "his opponent won't" comparative form was dropped deliberately. */
+  function candidateBullets(c){
+    /* Two things learned tuning this against the real copy:
+       - Split sentences on . ! ? only, optionally swallowing a closing quote.
+         Splitting on a bare curly quote cut mid-sentence in lines like
+         should "explore" a public option, yielding the fragment: Would support "at least".
+       - Never split on a plain comma. Long sentences here are usually lists, and
+         comma-splitting turned one position into four meaningless fragments. */
+    const t=(c.issue_positions||'').replace(/\s+/g,' ');
+    const out=[];
+    t.split(/(?<=[.!?])["\u201d\u2019']?\s+/).forEach(function(sent){
+      if(out.length>=4) return;
+      sent.trim().split(/;\s|\s[\u2014-]\s(?=[A-Z])/).forEach(function(ch){
+        if(out.length>=4) return;
+        ch=ch.trim().replace(/^(But|And|Also)\b,?\s*/i,'').replace(/\.$/,'').trim();
+        if(ch.length<20) return;
+        if(ch.length>150) ch=ch.slice(0,150).replace(/\s+\S*$/,'').replace(/[,;:]$/,'')+'\u2026';
+        out.push(ch.charAt(0).toUpperCase()+ch.slice(1));
+      });
+    });
+    return out;
   }
 
   /* ---------- WIZARD ---------- */
