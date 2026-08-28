@@ -574,12 +574,14 @@
           <span><i style="background:var(--text)"></i>Competitive</span>
           <span><i style="background:#5a5a5a"></i>Safe / solid</span>
         </div>
-        <div class="racehead" style="margin-top:16px;">Key Senate races to watch</div>
+        <div class="racehead" style="margin-top:16px;" id="watchHead">Key Senate races to watch</div>
+        <div id="watchList">
         <div class="racerow you"><span>Ohio — Senate (open) <span class="you-tag">YOUR RACE</span></span><span class="badge b-toss">Tossup</span></div>
         <div class="racerow"><span>Maine — Senate</span><span class="badge b-toss">Tossup</span></div>
         <div class="racerow"><span>Michigan — Senate</span><span class="badge b-toss">Tossup</span></div>
         <div class="racerow"><span>Texas — Senate</span><span class="badge b-toss">Tossup</span></div>
         <div class="racerow"><span>North Carolina — Senate</span><span class="badge b-comp">Competitive</span></div>
+        </div>
       </div>
 
       <!-- GUESTS -->
@@ -1990,7 +1992,11 @@
 
   /* Senate seats rated Tossup in the dataset. Used only to decide whether the
      "<state> is one of them" line is truthful -- never to assert it blindly. */
-  const SENATE_TOSSUP_STATES = ['Alaska','Iowa','Maine','Michigan','Ohio','Texas'];
+  /* Derived from RACES rather than hand-maintained. A stale hand-written list made
+     the Congress graphic assert that a state was a tossup when the data disagreed. */
+  const SENATE_TOSSUP_STATES = (typeof RACES!=='undefined' ? RACES : [])
+    .filter(r=>r.chamber==='Senate' && /toss/i.test(r.rating||''))
+    .map(r=>r.state);
 
   function congressData(state){
     const find = n => CHAMBERS.find(c => c.name.indexOf(n) >= 0);
@@ -2481,7 +2487,7 @@
       '<span><span class="nm">'+f.nm+' · '+f.r+'</span><br><span class="pl">'+f.px+' — '+f.pl+'</span></span></div>').join('');
     wrap.appendChild(btn); wrap.appendChild(menu);
     btn.addEventListener('click',e=>{ e.stopPropagation(); const willOpen=!menu.classList.contains('open'); closeExportMenus(menu); menu.classList.toggle('open',willOpen); });
-    menu.addEventListener('click',e=>{ e.stopPropagation(); const row=e.target.closest('.exprow'); if(!row) return; const f=FORMATS[+row.dataset.i]; menu.classList.remove('open'); exportAsset(title,(typeof linesSrc==='function'?linesSrc():linesSrc),f,cta,meta,renderer); });
+    menu.addEventListener('click',e=>{ e.stopPropagation(); const row=e.target.closest('.exprow'); if(!row) return; const f=FORMATS[+row.dataset.i]; menu.classList.remove('open'); exportAsset((typeof title==='function'?title():title),(typeof linesSrc==='function'?linesSrc():linesSrc),f,cta,meta,renderer); });
     return wrap;
   }
 
@@ -2495,7 +2501,8 @@
        gets its own renderer rather than going through collectLines(). */
     const isCongress = /Decide Congress/i.test(title||'');
     h3.appendChild(buildExportMenu(
-      isCongress ? 'The Races That Will Decide Congress' : title,
+      isCongress ? 'The Races That Will Decide Congress'
+                 : (()=>card.getAttribute('data-asset')||title),
       ()=>collectLines(card), null, null,
       isCongress ? ((W,H)=>renderCongressAsset(W,H,selectedState())) : null));
   });
@@ -2713,6 +2720,7 @@
     document.getElementById('noCoverage').style.display='none';
     showKit(true);
     renderFacts(r); renderGuests(r); renderInfographicsFor(r);
+    renderWatchList(r); retitleCards(r); renderCongress(r);
     renderLocalCoverage(r.state);
     markMocks(!(r.state==='Ohio'&&r.chamber==='Senate'));
   }
@@ -3043,6 +3051,100 @@
     paint();
     row.appendChild(panel);
     return panel;
+  }
+
+
+  /* The watch-list used to be five hardcoded Senate rows. It now shows the races
+     that share the chosen race's rating - same chamber first, since a House
+     creator cares more about other House races - with the user's own marked. */
+  function ratingClass(rt){
+    const r=(rt||'').toLowerCase();
+    if(r.indexOf('toss')>-1) return 'b-toss';
+    if(r.indexOf('compet')>-1||r.indexOf('lean')>-1) return 'b-comp';
+    return 'b-safe';
+  }
+  function renderWatchList(r){
+    const head=document.getElementById('watchHead'), list=document.getElementById('watchList');
+    if(!head||!list||!r) return;
+    const rating=r.rating||'';
+    head.textContent = rating ? 'Other '+rating.toLowerCase()+' races to watch' : 'Races to watch';
+    const peers=RACES.filter(x=>x.id!==r.id && x.rating===rating)
+      .sort((a,b)=>{
+        if((a.chamber===r.chamber)!==(b.chamber===r.chamber)) return a.chamber===r.chamber?-1:1;
+        return a.state.localeCompare(b.state);
+      }).slice(0,7);
+    list.innerHTML='';
+    const mine=document.createElement('div'); mine.className='racerow you';
+    const ms=document.createElement('span'); ms.textContent=raceLabel(r)+' ';
+    const tag=document.createElement('span'); tag.className='you-tag'; tag.textContent='YOUR RACE';
+    ms.appendChild(tag);
+    const mb=document.createElement('span'); mb.className='badge '+ratingClass(rating); mb.textContent=rating||'\u2014';
+    mine.appendChild(ms); mine.appendChild(mb); list.appendChild(mine);
+    peers.forEach(x=>{
+      const row=document.createElement('div'); row.className='racerow';
+      const a=document.createElement('span'); a.textContent=raceLabel(x);
+      const b=document.createElement('span'); b.className='badge '+ratingClass(x.rating); b.textContent=x.rating;
+      row.appendChild(a); row.appendChild(b);
+      row.style.cursor='pointer';
+      row.addEventListener('click',()=>{ state.pick.race=x; renderRace(x);
+        window.scrollTo({top:0,behavior:'smooth'}); });
+      list.appendChild(row);
+    });
+    if(!peers.length){
+      const n=document.createElement('div'); n.className='dotcap';
+      n.textContent='No other '+rating.toLowerCase()+' races in this guide.';
+      list.appendChild(n);
+    }
+  }
+  /* Export filenames and graphic titles come from data-asset, so they have to follow
+     the race too - otherwise a Texas kit exports a graphic headed "Ohio U.S. Senate". */
+  function retitleCards(r){
+    if(!r) return;
+    const label=raceLabel(r);
+    [['Fast Facts','Fast Facts: '],['Potential Guests','Potential Guests: '],
+     ['Go Deeper','Go Deeper: ']].forEach(([prefix,newPrefix])=>{
+      const card=document.querySelector('[data-asset^="'+prefix+'"]');
+      if(card) card.setAttribute('data-asset', newPrefix+label);
+    });
+  }
+
+
+  /* The dot chart's seat counts and its caption were both typed in, so the caption
+     claimed "Ohio is one of them" whatever race you picked, and the tossup counts
+     never moved when the CSV changed. Both are now derived, and the caption only
+     names a state when that state's race really is a tossup. */
+  function chamberCounts(){
+    const out={};
+    [['Senate',100,51],['House',435,218]].forEach(([ch,total,control])=>{
+      const rs=RACES.filter(r=>r.chamber===ch);
+      const toss=rs.filter(r=>/toss/i.test(r.rating||'')).length;
+      const comp=rs.filter(r=>/compet|lean/i.test(r.rating||'')).length;
+      out[ch]={total:total,control:control,toss:toss,comp:comp,safe:Math.max(0,total-toss-comp)};
+    });
+    return out;
+  }
+  function renderCongress(r){
+    const host=document.getElementById('dotcharts'); if(!host) return;
+    const C=chamberCounts(); host.innerHTML='';
+    [['U.S. Senate','Senate'],['U.S. House','House']].forEach(([label,ch])=>{
+      const c=C[ch];
+      let dots='';
+      for(let i=0;i<c.safe;i++) dots+='<div class="dot2"></div>';
+      for(let i=0;i<c.comp;i++) dots+='<div class="dot2 comp"></div>';
+      for(let i=0;i<c.toss;i++) dots+='<div class="dot2 toss"></div>';
+      let cap='<b>'+c.toss+' tossup seat'+(c.toss===1?'':'s')+'</b> (yellow) '+
+              (ch==='Senate'?'decide the majority':'decide who controls the House');
+      /* Only claim the user's state is one of them when it actually is. */
+      if(r && r.chamber===ch && /toss/i.test(r.rating||'')) cap+=' \u2014 '+r.state+' is one of them.';
+      else if(r && r.chamber===ch) cap+='. '+r.state+'\u2019s race is rated '+(r.rating||'unrated').toLowerCase()+'.';
+      else cap+='.';
+      const el=document.createElement('div'); el.className='dotchamber';
+      el.innerHTML='<div class="dothead"><span class="cn">'+label+'</span><span class="mg"><b>'+
+        c.control+'</b> to control \u00b7 '+c.total+' seats total</span></div>'+
+        '<div class="dotgrid '+(ch==='House'?'house':'')+'">'+dots+'</div>'+
+        '<div class="dotcap">'+cap+'</div>';
+      host.appendChild(el);
+    });
   }
 
   /* ---------- WIZARD ---------- */
