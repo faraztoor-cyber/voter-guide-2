@@ -600,7 +600,7 @@
       </div>
 
       <!-- GO DEEPER -->
-      <div class="out" data-asset="Go Deeper: Ohio U.S. Senate" data-mock="1">
+      <div class="out" data-noexport data-asset="Go Deeper: Ohio U.S. Senate" data-mock="1">
         <h3><span class="lft"><span class="ic">📚</span> Go Deeper</span></h3>
         <ul>
           <li><a class="reslink" href="https://instagram.com/therecount" target="_blank" rel="noopener">The Recount on Instagram — follow us →</a></li>
@@ -2555,7 +2555,7 @@
     const outlets=(typeof LOCAL_SOURCES!=='undefined' && LOCAL_SOURCES[state])||[];
     ul.innerHTML='';
     if(!outlets.length){
-      note.textContent='No local outlets are loaded for '+state+' yet.';
+      note.textContent='';
       return;
     }
     outlets.forEach(o=>{
@@ -2565,7 +2565,7 @@
       a.textContent=o.name+' \u2192';
       li.appendChild(a); ul.appendChild(li);
     });
-    note.textContent='Local coverage: '+outlets.length+' outlet'+(outlets.length===1?'':'s')+' for '+state+'.';
+    note.textContent='';
   }
   renderLocalCoverage('Ohio');   /* initial paint; showResults() re-renders for the picked state */
 
@@ -2613,7 +2613,11 @@
     const host=u=>{ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e){ return u; } };
     const chips=(box,urls)=>{ urls.forEach(u=>{ const a=document.createElement('a');
       a.href=u; a.target='_blank'; a.rel='noopener'; a.textContent=host(u); box.appendChild(a); }); };
-    const split=v=>(v||'').split('|').map(x=>x.trim()).filter(Boolean);
+    /* The CSV separates URLs inconsistently - 319 cells use a capital "I", 77 use "|",
+       and a stray one can glue two links into a single broken href. Matching the URL
+       pattern instead of splitting on a delimiter makes that irrelevant. */
+    const split=v=>((v||'').match(/https?:\/\/[^\s|]+/g)||[])
+                     .map(u=>u.replace(/[.,;)\]]+$/,''));
     r.cands.forEach(c=>{
       const d=document.createElement('div'); d.className='cand';
       const pty=(c.party==='D'||c.party==='R')?c.party:'O';
