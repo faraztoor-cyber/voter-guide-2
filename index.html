@@ -2671,6 +2671,13 @@
     markMocks(!(r.state==='Ohio'&&r.chamber==='Senate'));
   }
   function renderChoices(hits){
+    /* Without this the previous race's title stays in the banner while the chooser
+       is shown, which reads as "Start over didn't work". */
+    const sts=Array.from(new Set(hits.map(h=>h.state)));
+    document.getElementById('raceTitle').textContent =
+      sts.length===1 ? sts[0]+' \u2014 2026' : 'Choose a race';
+    document.getElementById('raceSub').textContent =
+      hits.length+' races match. Pick one below.';
     const nc=document.getElementById('noCoverage');
     nc.querySelector('h3 .lft').innerHTML='<span class="ic">\ud83d\uddf3\ufe0f</span> Which race?';
     const b=document.getElementById('noCoverageBody'); b.innerHTML='';
@@ -2874,6 +2881,9 @@
     const bl=document.getElementById('ballotList'); if(bl) bl.style.display='none';
     const rc=document.getElementById('raceCard'); if(rc) rc.style.display='none';
     const nc=document.getElementById('noCoverage'); if(nc) nc.style.display='none';
+    const rt=document.getElementById('raceTitle'), rs=document.getElementById('raceSub');
+    if(rt) rt.textContent='Your 2026 kit';
+    if(rs) rs.textContent='Pick a race to see candidates, positions and sources.';
     markMocks(false);
     document.getElementById('results').style.display='none';
     document.querySelector('.nav').style.display='flex';
