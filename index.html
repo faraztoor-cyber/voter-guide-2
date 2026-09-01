@@ -2669,12 +2669,21 @@
 
      TO CONNECT IT: create the Google Form, then fill in RECOUNT_FORM below.
      Until action is set, everything falls back to mailto and nothing breaks. */
+  /* Connected 2026-09-01. Form: "Recount Voter Guide — creator submissions".
+     The ids below were read off the form's own FB_PUBLIC_LOAD_DATA_ rather than
+     assumed from the order of the prefill URL, and each was matched to its
+     question title. Verified by POSTing an unauthenticated submission, which is
+     the only test that means anything here: the guide submits from a creator's
+     browser with no Google session, so a form restricted to an organisation
+     accepts the owner's test and silently rejects every real creator. */
   const RECOUNT_FORM={
     /* https://docs.google.com/forms/d/e/<FORM_ID>/formResponse  <- note formResponse, not viewform */
-    action:'',
+    action:'https://docs.google.com/forms/d/e/1FAIpQLSdONLA4g4HIyPg8mB-yJIj9vkB9eW4UU9e29v6RoMO92HK89A/formResponse',
     /* Map each field to its entry.NNNNNNN id from the Form's prefill link. */
-    fields:{ kind:'', name:'', email:'', handle:'', audience:'', platforms:'',
-             topics:'', race:'', details:'', links:'' }
+    fields:{ kind:'entry.1259562350', name:'entry.295099528', email:'entry.577120662',
+             handle:'entry.857860834', audience:'entry.1361602496', platforms:'entry.323642955',
+             topics:'entry.1446655275', race:'entry.1464969559', details:'entry.1888402217',
+             links:'entry.890524198' }
   };
   function recountFormReady(){
     return !!(RECOUNT_FORM.action && RECOUNT_FORM.fields && RECOUNT_FORM.fields.kind);
