@@ -86,6 +86,10 @@
   .chip.measure.linked { text-decoration:none; display:inline-block; }
   .chip.measure.linked:hover { border-color:var(--accent); color:var(--accent); }
   .chip.measure .ext { opacity:.55; font-weight:700; }
+  /* A measure's optional caution sits beneath its chip, not inside it: the chip is
+     the link, and nesting the text would drag it into the click target. */
+  .measurewrap { display:block; max-width:560px; }
+  .measurenote { font-size:12.5px; color:#999999; line-height:1.45; margin:4px 0 8px 14px; }
   .chip.morechip { border-style:dashed; color:var(--muted); font-weight:600; }
   .chip.morechip:hover { color:var(--text); border-color:var(--accent); }
 
@@ -763,13 +767,13 @@
       {num:"", text:"Require public schools to do the Pledge of Allegiance every day, and allow student-led prayer", url:"https://ballotpedia.org/Alabama_Require_Pledge_of_Allegiance_and_Allow_Student-Led_Prayer_in_Public_Schools_Amendment_(2026)"}
     ],
     "Alaska": [
-      {num:"Ballot Measure 2", text:"Repeal the top-four ranked-choice voting system created in 2020", url:"https://ballotpedia.org/Alaska_Ballot_Measure_2,_Repeal_Top-Four_Ranked-Choice_Voting_Initiative_(2026)"},
+      {num:"Ballot Measure 2", text:"Repeal top-four primaries and ranked-choice general elections, return to party primaries, and repeal rules requiring disclosure of the true sources of large political contributions", url:"https://ballotpedia.org/Alaska_Ballot_Measure_2,_Repeal_Top-Four_Ranked-Choice_Voting_Initiative_(2026)"},
       {num:"Ballot Measure 3", text:"Have state law specify only a U.S. citizen can vote in an election", url:"https://ballotpedia.org/Alaska_Ballot_Measure_3,_Citizenship_Voting_Requirement_Initiative_(2026)"}
     ],
     "Arizona": [
-      {num:"Proposition 316", text:"Cap grocery taxes at 2% and prohibit local tax increases on groceries", url:"https://ballotpedia.org/Arizona_Proposition_316,_Limit_Local_Tax_Rate_on_Groceries_to_2%25_of_Base_Price_and_Require_Voter_Approval_to_Increase_Tax_Rate_Measure_(2026)"},
-      {num:"Proposition 317", text:"Designate cartels as terrorist organizations", url:"https://ballotpedia.org/Arizona_Proposition_317,_Designate_Drug_Cartels_as_Terrorist_Organizations_and_Require_State_DHS_to_Address_Threats_Measure_(2026)"},
-      {num:"Proposition 318", text:"Trans bathroom ban", url:"https://ballotpedia.org/Arizona_Proposition_318,_Require_Schools_and_Athletic_Associations_to_Restrict_Use_of_Restrooms,_Locker_Rooms,_and_Other_Private_Spaces_Based_on_Sex_Measure_(2026)"}
+      {num:"Proposition 316", text:"Prohibit local governments from adopting or increasing grocery taxes without voter approval, and cap the rate at 2%", url:"https://ballotpedia.org/Arizona_Proposition_316,_Limit_Local_Tax_Rate_on_Groceries_to_2%25_of_Base_Price_and_Require_Voter_Approval_to_Increase_Tax_Rate_Measure_(2026)"},
+      {num:"Proposition 317", text:"Declare drug cartels to be terrorist organizations and direct the state homeland security department to address them", url:"https://ballotpedia.org/Arizona_Proposition_317,_Designate_Drug_Cartels_as_Terrorist_Organizations_and_Require_State_DHS_to_Address_Threats_Measure_(2026)"},
+      {num:"Proposition 318", text:"Require school athletic teams to be designated male, female or coed by birth sex, and restrict access to private spaces by sex", url:"https://ballotpedia.org/Arizona_Proposition_318,_Require_Schools_and_Athletic_Associations_to_Restrict_Use_of_Restrooms,_Locker_Rooms,_and_Other_Private_Spaces_Based_on_Sex_Measure_(2026)"}
     ],
     "Arkansas": [
       {num:"", text:"Have state law specify only a U.S. citizen can vote in an election", url:"https://ballotpedia.org/Arkansas_Citizenship_Voting_Requirement_Amendment_(2026)"},
@@ -781,20 +785,20 @@
       {num:"Prop 4", text:"Allow California to set up a public campaign finance system", url:"https://calmatters.org/politics/2026/06/california-ballot-measures-november-election/"},
       {num:"Prop 39", text:"Require ID when voting", url:"https://ballotpedia.org/California_Proposition_39,_Voter_Identification,_Citizenship_Verification,_and_Registered_Voter_List_Administration_Initiative_(2026)"},
       {num:"Prop 40", text:"One-time 5% tax on people and trusts worth more than $1 billion. Revenue would fund healthcare, food assistance, and public education.", url:"https://calmatters.org/politics/2026/06/california-ballot-measures-november-election/"},
-      {num:"Prop 41", text:"Ban Prop 40 (prohibit new taxes on accumulation of retirement holdings, individually-owned assets, and other forms of personal savings)", url:"https://ballotpedia.org/California_Proposition_41,_Prohibit_Excluding_New_State_Taxes_from_Spending_Limit_and_Require_Special_Tax_Audits_Initiative_(2026)"},
-      {num:"Prop 42", text:"Ban Prop 40", url:"https://ballotpedia.org/California_Proposition_42,_Prohibit_New_Taxes_on_Retirement_Holdings,_Personal_Assets,_and_Savings_and_Limit_Retroactive_Taxes_Initiative_(2026)"},
+      {num:"Prop 41", text:"Prohibit new state taxes that are excluded from the state spending limit, and require audits of new special taxes. A counter-measure to Prop 40's wealth tax.", url:"https://ballotpedia.org/California_Proposition_41,_Prohibit_Excluding_New_State_Taxes_from_Spending_Limit_and_Require_Special_Tax_Audits_Initiative_(2026)"},
+      {num:"Prop 42", text:"Prohibit new state taxes on personal property, including retirement holdings and personal savings, and certain retroactive taxes. A counter-measure to Prop 40's wealth tax.", url:"https://ballotpedia.org/California_Proposition_42,_Prohibit_New_Taxes_on_Retirement_Holdings,_Personal_Assets,_and_Savings_and_Limit_Retroactive_Taxes_Initiative_(2026)"},
       {num:"Prop 43", text:"Require a two-thirds vote for voters to increase local taxes via ballot measure", url:"https://ballotpedia.org/California_Proposition_43,_Two-Thirds_Vote_Requirement_for_Local_Special_Tax_Initiatives_and_Property_Tax_Initiative_Prohibition_Amendment_(2026)"}
     ],
     "Colorado": [
       {num:"", text:"Ban gender-affirming surgeries for minors, and prohibit insurances or public money to pay for gender-affirming surgeries", url:"https://ballotpedia.org/Colorado_Prohibit_Surgeries_for_Treatment_in_Response_to_Minors%27_Perception_of_Sex_or_Gender_Measure_(2026)"},
-      {num:"", text:"Ban trans athletes from K-12 and college teams", url:"https://ballotpedia.org/Colorado_Sex_Requirement_for_School_and_College_Sports_Initiative_(2026)"},
+      {num:"", text:"Require school and college athletes to compete on the team matching their sex at birth", url:"https://ballotpedia.org/Colorado_Sex_Requirement_for_School_and_College_Sports_Initiative_(2026)"},
       {num:"", text:"Require law enforcement to coordinate more with DHS", url:"https://ballotpedia.org/Colorado_Notification_of_U.S._Department_of_Homeland_Security_for_Certain_Criminal_Charges_and_Immigration_Status_Initiative_(2026)"},
       {num:"", text:"Harsher sentences for fentanyl sale, possession, manufacturing, and distribution", url:"https://ballotpedia.org/Colorado_Penalties_for_Fentanyl_Sale_and_Possession_Initiative_(2026)"},
       {num:"", text:"Require life in prison for sex trafficking a child", url:"https://ballotpedia.org/Colorado_Require_Life_in_Prison_for_Human_Trafficking_of_Minors_Measure_(2026)"},
       {num:"", text:"Affirm Coloradans have the right to buy or sell natural gas", url:"https://ballotpedia.org/Colorado_Right_to_Purchase_and_Sell_Natural_Gas_for_Cooking_or_Heating_in_Homes_and_Businesses_Amendment_(2026)"}
     ],
     "Georgia": [
-      {num:"", text:"Amend Georgia constitution so the state government can update 911 fund", url:"https://ballotpedia.org/Georgia_Authorize_Creation_of_Next_Generation_9-1-1_Fund_Amendment_(2026)"}
+      {num:"", text:"Let the legislature dedicate existing revenues to a nonlapsing fund used only for expanding, maintaining and operating 911 systems", url:"https://ballotpedia.org/Georgia_Authorize_Creation_of_Next_Generation_9-1-1_Fund_Amendment_(2026)"}
     ],
     "Idaho": [
       {num:"HJR 6", text:"Have the state constitution specify English is Idaho’s official language", url:"https://ballotpedia.org/Idaho_HJR_6,_English_as_Official_State_Language_Amendment_(2026)"},
@@ -814,15 +818,15 @@
       {num:"", text:"Ban the governor from issuing pardons or commutations of sentences between 60 days before the governor election and after the fifth Tuesday succeeding the election", url:"https://ballotpedia.org/Kentucky_Limit_Governor%27s_Pardon_Power_and_Commutations_Near_General_Election_Amendment_(2026)"}
     ],
     "Louisiana": [
-      {num:"", text:"Prohibit governors from serving more than two terms", url:"https://ballotpedia.org/Louisiana_Gubernatorial_Two-Term_Lifetime_Limit_Amendment_(2026)"},
+      {num:"", text:"Change the governor's term limit from two consecutive terms to a lifetime maximum of two terms", url:"https://ballotpedia.org/Louisiana_Gubernatorial_Two-Term_Lifetime_Limit_Amendment_(2026)"},
       {num:"", text:"Deny bail to someone convicted of an aggravated offense against a victim who is a minor", url:"https://ballotpedia.org/Louisiana_Prohibit_Post-Conviction_Bail_for_Individuals_Convicted_of_Assault_Against_Minors_Amendment_(2026)"},
       {num:"", text:"Ban foreign agents from seizing private property", url:"https://ballotpedia.org/Louisiana_Prohibit_Property_Expropriation_by_Foreign_Adversaries_Amendment_(2026)"}
     ],
     "Maryland": [
-      {num:"Question 3", text:"Make it easier for the state legislature to redraw congressional districts", url:"https://ballotpedia.org/Maryland_Question_3,_Provide_That_Nothing_in_State_Constitution_Establishes_Criteria_for_Congressional_Redistricting_Amendment_(2026)"}
+      {num:"Question 3", text:"Apply state districting standards only to General Assembly districts, let the legislature give the state Supreme Court jurisdiction over the congressional map, and set congressional criteria by federal law", url:"https://ballotpedia.org/Maryland_Question_3,_Provide_That_Nothing_in_State_Constitution_Establishes_Criteria_for_Congressional_Redistricting_Amendment_(2026)"}
     ],
     "Massachusetts": [
-      {num:"Question 3", text:"End closed primaries for state elections", url:"https://ballotpedia.org/Massachusetts_Question_3,_Top-Two_Primary_Elections_Initiative_(2026)"},
+      {num:"Question 3", text:"Replace party primaries with a top-two system where all candidates run together and the top two advance", url:"https://ballotpedia.org/Massachusetts_Question_3,_Top-Two_Primary_Elections_Initiative_(2026)"},
       {num:"Question 4", text:"Establish same-day voter registration", url:"https://ballotpedia.org/Massachusetts_Question_4,_Permit_Same-Day_Voter_Registration_Initiative_(2026)"},
       {num:"Question 8", text:"Ban the sale of recreational marijuana", url:"https://ballotpedia.org/Massachusetts_Question_8,_Eliminate_Recreational_Marijuana_Sales_and_Allow_Limited_Possession_Initiative_(2026)"},
       {num:"Question 9", text:"Repeal state law that created gun control measures like an assault weapons ban, an electronic firearm ownership tracker, and requiring serial numbers on guns", url:"https://ballotpedia.org/Massachusetts_Question_9,_Firearm_Regulations_Referendum_(2026)"}
@@ -844,11 +848,11 @@
       {num:"Question 7", text:"Require ID to vote in person, or use the last four digits of their driver's license or Social Security number to vote by mail", url:"https://ballotpedia.org/Nevada_Question_7,_Require_Voter_Identification_Initiative_(2026)"}
     ],
     "New Mexico": [
-      {num:"", text:"Bills become law if the governor doesn’t sign or veto them (ban the pocket veto)", url:"https://ballotpedia.org/New_Mexico_Eliminate_Governor%E2%80%99s_Pocket_Veto_and_Require_Veto_Explanations_Amendment_(2026)"},
+      {num:"", text:"Require the governor to give veto messages on all vetoed bills, and provide that bills the governor does not act on become law", url:"https://ballotpedia.org/New_Mexico_Eliminate_Governor%E2%80%99s_Pocket_Veto_and_Require_Veto_Explanations_Amendment_(2026)"},
       {num:"", text:"Give state legislators salaries equal to the state’s annual median household income", url:"https://ballotpedia.org/New_Mexico_Establish_Salary_for_State_Legislators_Amendment_(2026)"}
     ],
     "North Carolina": [
-      {num:"", text:"Require voter ID for any type of voting", url:"https://ballotpedia.org/North_Carolina_Require_Voter_Identification_Amendment_(2026)"},
+      {num:"", text:"Require photo ID for all voters, not just those voting in person", url:"https://ballotpedia.org/North_Carolina_Require_Voter_Identification_Amendment_(2026)"},
       {num:"", text:"Require the state legislature to pass laws that limit property tax increases", url:"https://ballotpedia.org/North_Carolina_Property_Tax_Levy_Limit_Amendment_(2026)"},
       {num:"", text:"Reduce the maximum income tax rate from 7% to 3.5%", url:"https://ballotpedia.org/North_Carolina_Reduce_Income_Tax_Rate_Cap_from_7%25_to_3.5%25_Amendment_(2026)"}
     ],
@@ -857,10 +861,10 @@
       {num:"Constitutional Measure 2", text:"Public schools must give one free breakfast and one free lunch to students", url:"https://ballotpedia.org/North_Dakota_Constitutional_Measure_2,_Require_Schools_to_Provide_Free_Meals_to_Students_Initiative_(2026)"}
     ],
     "Ohio": [
-      {num:"Issue 3", text:"Require voter ID", url:"https://ballotpedia.org/Ohio_Issue_3,_Require_Voter_Identification_Amendment_(2026)"}
+      {num:"Issue 3", text:"Require a photo ID to vote", url:"https://ballotpedia.org/Ohio_Issue_3,_Require_Voter_Identification_Amendment_(2026)"}
     ],
     "Oklahoma": [
-      {num:"State Question 845", text:"Give Republicans more power over the judicial nominating commission", url:"https://ballotpedia.org/Oklahoma_State_Question_845,_Changes_to_Judicial_Nominating_Commission_Amendment_(2026)"}
+      {num:"State Question 845", text:"Change the structure, terms and rules of the commission that nominates state judges", url:"https://ballotpedia.org/Oklahoma_State_Question_845,_Changes_to_Judicial_Nominating_Commission_Amendment_(2026)"}
     ],
     "South Dakota": [
       {num:"Constitutional Amendment I", text:"Effectively roll back voter-approved measure from 2022 to expand state Medicaid program, by ending the constitutional requirement if federal funding for Medicaid falls below 90%", url:"https://justfacts.votesmart.org/elections/ballot-measure/3090/medicaid-expansion-conditioned-on-90-federal-funding-amendment"},
@@ -869,32 +873,32 @@
       {num:"Constitutional Amendment L", text:"Require constitutional amendments to get a 60% vote to be adopted, not just a bare majority", url:"https://ballotpedia.org/South_Dakota_Constitutional_Amendment_L,_60%25_Vote_Requirement_for_Constitutional_Amendments_Measure_(2026)"}
     ],
     "Tennessee": [
-      {num:"Amendment 1", text:"End bail for certain crimes, such as terrorism, second-degree murder, aggravated rape of a child, or grave torture", url:"https://ballotpedia.org/Tennessee_Amendment_1,_Remove_Right_to_Bail_for_Certain_Criminal_Offenses_Measure_(2026)"},
-      {num:"Amendment 2", text:"Prohibit the state legislature from increasing property taxes", url:"https://ballotpedia.org/Tennessee_Amendment_2,_Prohibit_State_Property_Taxes_Measure_(2026)"}
+      {num:"Amendment 1", text:"Allow judges to deny bail for certain offenses, such as terrorism, second-degree murder, aggravated rape of a child, or grave torture", url:"https://ballotpedia.org/Tennessee_Amendment_1,_Remove_Right_to_Bail_for_Certain_Criminal_Offenses_Measure_(2026)"},
+      {num:"Amendment 2", text:"Prohibit the state legislature from establishing a state property tax", url:"https://ballotpedia.org/Tennessee_Amendment_2,_Prohibit_State_Property_Taxes_Measure_(2026)"}
     ],
     "Utah": [
-      {num:"", text:"Require constitutional amendments to get a 60% vote to be adopted, not just a bare majority, to make some tax changes, such as imposing new taxes or expanding them", url:"https://ballotpedia.org/Utah_60%25_Vote_Requirement_for_Ballot_Initiatives_to_Increase_or_Expand_Taxes_Amendment_(2026)"},
-      {num:"", text:"Amend requirement that constitutional amendments appear in at least one newspaper in every county in the state for two months before the election", url:"https://utahnewsdispatch.com/2026/07/08/utah-lawmakers-now-wont-pursue-constitutional-amendment-to-change-ballot-initiative-power/"}
+      {num:"", text:"Require ballot initiatives that impose or expand taxes to get a 60% vote to pass, not just a bare majority", url:"https://ballotpedia.org/Utah_60%25_Vote_Requirement_for_Ballot_Initiatives_to_Increase_or_Expand_Taxes_Amendment_(2026)"},
+      {num:"", text:"Remove the requirement that proposed constitutional amendments be published in a newspaper in every county before the election", url:"https://ballotpedia.org/Utah_Publication_Requirements_for_Constitutional_Amendments_Measure_(2026)"}
     ],
     "Vermont": [
-      {num:"Proposal 3", text:"Specify state residents have the right to join a labor union, ban right-to-work laws that prohibit the collection of union dues", url:"https://ballotpedia.org/Vermont_Proposal_3,_Right_to_Collective_Bargaining_Amendment_(2026)"},
+      {num:"Proposal 3", text:"Establish a constitutional right for employees to organize or join a labor organization for the purpose of collective bargaining", url:"https://ballotpedia.org/Vermont_Proposal_3,_Right_to_Collective_Bargaining_Amendment_(2026)"},
       {num:"Proposal 4", text:"Amend the constitution to ensure someone is not denied their rights due to their race, ethnicity, sex, religion, disability, sexual orientation, gender identity, gender expression, or national origin", url:"https://ballotpedia.org/Vermont_Proposal_4,_Equal_Protection_of_Law_Amendment_(2026)"}
     ],
     "Virginia": [
-      {num:"Question 1", text:"Add a section to the state constitution that establishes a right to reproductive freedom", url:"https://ballotpedia.org/Virginia_Question_1,_Right_to_Reproductive_Freedom_Amendment_(2026)"},
-      {num:"Question 2", text:"Amend the constitution’s language that defines marriage as between one man and one woman, and ban the state from denying marriage licenses to two adults based on their sex, gender, or race", url:"https://ballotpedia.org/Virginia_Question_2,_Remove_Constitutional_Same-Sex_Marriage_Ban_Amendment_(2026)"},
-      {num:"Question 3", text:"Felons get their voting rights back after they’re released from prison", url:"https://ballotpedia.org/Virginia_Question_3,_Voting_Rights_Restoration_for_Felons_Upon_Release_Amendment_(2026)"}
+      {num:"Question 1", text:"Establish a constitutional right to decisions about prenatal care, childbirth, birth control, abortion, miscarriage management and fertility care, protect providers from punishment, and allow third-trimester restrictions except when health is at risk or the pregnancy cannot survive", url:"https://ballotpedia.org/Virginia_Question_1,_Right_to_Reproductive_Freedom_Amendment_(2026)", note:"Two lawsuits challenge how this amendment reached the ballot. One was dismissed in July and is on appeal; the other is on hold. Challengers say they will seek to overturn the result even if it passes."},
+      {num:"Question 2", text:"Amend the constitution’s language that defines marriage as between one man and one woman, and ban the state from denying marriage licenses to two adults based on their sex, gender, or race", url:"https://ballotpedia.org/Virginia_Question_2,_Remove_Constitutional_Same-Sex_Marriage_Ban_Amendment_(2026)", note:"This amendment advanced through the same legislative process now being challenged in court over Question 1. Legal experts say it is unclear whether a ruling there would affect this measure."},
+      {num:"Question 3", text:"Establish a fundamental right to vote, restore voting rights automatically on release from incarceration, and narrow the mental-incompetence exclusion", url:"https://ballotpedia.org/Virginia_Question_3,_Voting_Rights_Restoration_for_Felons_Upon_Release_Amendment_(2026)", note:"This amendment advanced through the same legislative process now being challenged in court over Question 1. Legal experts say it is unclear whether a ruling there would affect this measure."}
     ],
     "Washington": [
-      {num:"", text:"Re-enact parents’ rights to be notified of their child getting medical services (such as gender-affirming care or birth control) and right to review educational materials like textbooks", url:"https://www.nbcnews.com/nbc-out/out-politics-and-policy/washington-parental-rights-law-criticized-forced-outing-measure-allowe-rcna155716"},
-      {num:"", text:"Ban trans girls and women from school athletes and “nonprofit organizations that regulate interscholastic activities,” and require anyone who wants to play girls sports to submit documentation that proves they are female", url:"https://ballotpedia.org/Washington_Sex_Verification_Requirements_for_Female_School_Sports_Initiative_(2026)"}
+      {num:"", text:"Re-enact parents’ rights to be notified of their child getting medical services (such as gender-affirming care or birth control) and right to review educational materials like textbooks", url:"https://ballotpedia.org/Washington_Parental_Right_to_Review_Education_Materials,_Receive_Notifications,_and_Opt_Out_of_Sexual-Health_Education_Initiative_(2026)"},
+      {num:"", text:"Bar students defined as biologically male from school athletics intended for female students, including in nonprofit organizations that regulate interscholastic activities, and require verification of sex by a healthcare provider", url:"https://ballotpedia.org/Washington_Sex_Verification_Requirements_for_Female_School_Sports_Initiative_(2026)"}
     ],
     "West Virginia": [
       {num:"", text:"Have state constitution specify only a U.S. citizen can vote in an election", url:"https://ballotpedia.org/West_Virginia_Citizenship_Voting_Requirement_Amendment_(2026)"}
     ],
     "Wisconsin": [
-      {num:"", text:"Prohibit the state from banning gatherings at houses of worship or closing them due to a public health emergency", url:"https://ballotpedia.org/Wisconsin_Prohibit_Government_Closure_of_Places_of_Worship_During_Emergencies_Amendment_(2026)"},
-      {num:"", text:"Ban the state government from taking affirmative action acts", url:"https://ballotpedia.org/Wisconsin_Prohibit_Government_Discrimination_or_Preferential_Treatment_Amendment_(2026)"},
+      {num:"", text:"Prohibit the state, cities and counties from closing places of worship or forbidding gatherings there during a declared emergency, including a public health emergency", url:"https://ballotpedia.org/Wisconsin_Prohibit_Government_Closure_of_Places_of_Worship_During_Emergencies_Amendment_(2026)"},
+      {num:"", text:"Prohibit any government entity from discriminating or granting preferential treatment based on race, sex, color, ethnicity or national origin in public employment, education, contracting or administration", url:"https://ballotpedia.org/Wisconsin_Prohibit_Government_Discrimination_or_Preferential_Treatment_Amendment_(2026)"},
       {num:"", text:"Prohibit the governor from using the partial veto to create or increase any tax or fee", url:"https://ballotpedia.org/Wisconsin_Prohibit_Partial_Veto_to_Increase_Tax_or_Fee_Amendment_(2026)"}
     ],
     "Wyoming": [
@@ -3825,10 +3829,20 @@
 
   /* Ballot measures: render per selected state */
   const ballotChips=document.getElementById('ballotChips'), ballotHint=document.getElementById('ballotHint');
-  function addBallotChip(text,url){
+  function addBallotChip(text,url,note){
     /* With a URL the chip IS the link -- clicking it opens the measure's page.
        Without one (every manually added measure) it keeps the old selectable
-       behaviour, so the "+ Add measure" flow is unchanged. */
+       behaviour, so the "+ Add measure" flow is unchanged.
+
+       `note` is optional and carries a factual caution about the measure itself --
+       currently only that a measure is being challenged over how it reached the
+       ballot. It states the fact and stops: whether that matters is the creator's
+       call, not the guide's (CLAUDE.md, "name the concern, leave the position to
+       the creator"). It renders as a sibling of the chip rather than inside it,
+       because the chip is a link and nesting text in it would make the caution
+       part of the click target. */
+    const wrap=document.createElement('div');
+    wrap.className='measurewrap';
     const c=document.createElement(url ? 'a' : 'div');
     c.className='chip measure'+(url ? ' linked' : '');
     c.textContent=text;
@@ -3839,7 +3853,14 @@
     } else {
       c.addEventListener('click',()=>c.classList.toggle('selected'));
     }
-    ballotChips.appendChild(c); return c;
+    wrap.appendChild(c);
+    if(note){
+      const n=document.createElement('div');
+      n.className='measurenote';
+      n.textContent=note;
+      wrap.appendChild(n);
+    }
+    ballotChips.appendChild(wrap); return c;
   }
   document.getElementById('ballotState').addEventListener('change',e=>{
     const st=e.target.value;
@@ -3850,7 +3871,7 @@
     if(measures && measures.length){
       ballotHint.textContent='Notable statewide measures on the '+st+' 2026 ballot';
       ballotHint.style.display='';
-      measures.forEach(function(m){ addBallotChip(m.num ? m.num+': '+m.text : m.text, m.url); });
+      measures.forEach(function(m){ addBallotChip(m.num ? m.num+': '+m.text : m.text, m.url, m.note); });
     } else {
       /* Nothing wired for this state: say nothing rather than apologise. The
          Ballotpedia link and the manual-add field below already cover it. */
